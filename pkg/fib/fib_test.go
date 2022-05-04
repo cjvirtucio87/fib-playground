@@ -2,8 +2,18 @@ package fib_test
 
 import (
 	"github.com/cjvirtucio87/fib-playground/pkg/fib"
+	"math/big"
 	"testing"
 )
+
+func BenchmarkFibBig(b *testing.B) {
+	memo := make(map[string]big.Int)
+	expectedFib := big.NewInt(13)
+	actualFib := fib.FibBig(*big.NewInt(7), memo)
+	if cmp := expectedFib.Cmp(&actualFib); cmp != 0 {
+		b.Fatalf("expected [%v], got [%v]", expectedFib, actualFib)
+	}
+}
 
 func BenchmarkFibSmall(b *testing.B) {
 	memo := make(map[int]int)
