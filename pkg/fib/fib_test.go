@@ -24,8 +24,9 @@ func BenchmarkFibLarge(b *testing.B) {
 }
 
 func BenchmarkFibChanSmall(b *testing.B) {
+	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
 	actualChan := make(chan int)
-	go fib.FibChan(7, actualChan)
+	go fib.FibChan(7, actualChan, &atomicMemo)
 	expectedFib := 13
 	actualFib := <- actualChan
 	if expectedFib != actualFib {
@@ -34,8 +35,9 @@ func BenchmarkFibChanSmall(b *testing.B) {
 }
 
 func BenchmarkFibChanLarge(b *testing.B) {
+	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
 	actualChan := make(chan int)
-	go fib.FibChan(57, actualChan)
+	go fib.FibChan(57, actualChan, &atomicMemo)
 	expectedFib := 365435296162
 	actualFib := <- actualChan
 	if expectedFib != actualFib {
