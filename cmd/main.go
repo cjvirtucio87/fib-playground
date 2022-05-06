@@ -14,9 +14,7 @@ func main() {
 	}
 
 	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
-	actualChan := make(chan int)
-	go fib.FibChan(7, actualChan, &atomicMemo)
-	actualFib = <-actualChan
+	actualFib = <-fib.FibChan(7, &atomicMemo)
 	if expectedFib != actualFib {
 		log.Fatalf("expected [%d], got [%d]", expectedFib, actualFib)
 	}

@@ -46,33 +46,34 @@ func Fib(n int, memo map[int]int) int {
 	return fibVal
 }
 
-func FibChan(n int, res chan<- int, memo *AtomicIntMemo) {
-	defer close(res)
-	if n < 0 {
-		res <- 0
-		return
-	}
+func FibChan(n int, memo *AtomicIntMemo) <-chan int{
+	res := make(chan int)
+	go func(res chan<- int) {
+		defer close(res)
 
-	if n <= 2 {
-		res <- 1
-		return
-	}
+		if n < 0 {
+			res <- 0
+			return
+		}
 
-	if v, ok := memo.Get(n); ok {
-		res <- v
-		return
-	}
+		if n <= 2 {
+			res <- 1
+			return
+		}
 
-	n1c := make(chan int)
-	n2c := make(chan int)
-	go FibChan(n - 1, n1c, memo)
-	go FibChan(n - 2, n2c, memo)
+		if v, ok := memo.Get(n); ok {
+			res <- v
+			return
+		}
 
-	res1 := <-n1c
-	res2 := <-n2c
+		res1 := <-FibChan(n - 1, memo)
+		res2 := <-FibChan(n - 2, memo)
 
-	resVal := res1 + res2
-	memo.Put(n, resVal)
+		resVal := res1 + res2
+		memo.Put(n, resVal)
 
-	res <- resVal
+		res <- resVal
+	}(res)
+
+	return res
 }
