@@ -9,6 +9,8 @@ type AtomicIntMemo struct {
 	Memo map[int]int
 }
 
+type Progress func(v int)
+
 func (am *AtomicIntMemo) Get(k int) (int, bool) {
 	am.m.RLock()
 	defer am.m.RUnlock()
@@ -46,33 +48,35 @@ func Fib(n int, memo map[int]int) int {
 	return fibVal
 }
 
-func FibChan(n int, memo *AtomicIntMemo) <-chan int{
+func FibChan(n int, memo *AtomicIntMemo, progress Progress) <-chan int{
 	res := make(chan int)
 	go func(res chan<- int) {
 		defer close(res)
 
 		if n < 0 {
-			res <- 0
+			res <-0
 			return
 		}
 
 		if n <= 2 {
-			res <- 1
+			res <-1
 			return
 		}
 
+		var resVal int
 		if v, ok := memo.Get(n); ok {
-			res <- v
-			return
+			resVal = v
+		} else {
+			res1 := <-FibChan(n - 1, memo, progress)
+			res2 := <-FibChan(n - 2, memo, progress)
+
+			resVal = res1 + res2
 		}
 
-		res1 := <-FibChan(n - 1, memo)
-		res2 := <-FibChan(n - 2, memo)
-
-		resVal := res1 + res2
+		progress(resVal)
 		memo.Put(n, resVal)
 
-		res <- resVal
+		res <-resVal
 	}(res)
 
 	return res
