@@ -16,7 +16,7 @@ func main() {
 	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
 	actualFib = <-fib.FibChan(
 		7, &atomicMemo,
-		func(v int) {},
+		func(n, v int) {},
 	)
 	if expectedFib != actualFib {
 		log.Fatalf("expected [%d], got [%d]", expectedFib, actualFib)

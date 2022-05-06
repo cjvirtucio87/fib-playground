@@ -48,7 +48,7 @@ func BenchmarkFibLarge(b *testing.B) {
 
 func BenchmarkFibChanSmall(b *testing.B) {
 	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
-	actualFib := <-fib.FibChan(7, &atomicMemo, func(v int) {})
+	actualFib := <-fib.FibChan(7, &atomicMemo, func(n, v int) {})
 	expectedFib := 13
 	if expectedFib != actualFib {
 		b.Fatalf("expected [%d], got [%d]", expectedFib, actualFib)
@@ -63,8 +63,8 @@ func BenchmarkFibChanLarge(b *testing.B) {
 	atomicMemo := fib.AtomicIntMemo{Memo: make(map[int]int)}
 	actualFib := <-fib.FibChan(
 		57, &atomicMemo,
-		func(v int) {
-			logger.Printf("value: %d", v)
+		func(n int, v int) {
+			logger.Printf("n: %d, value: %d", n, v)
 		},
 	)
 	expectedFib := 365435296162

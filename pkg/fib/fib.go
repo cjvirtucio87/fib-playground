@@ -9,7 +9,7 @@ type AtomicIntMemo struct {
 	Memo map[int]int
 }
 
-type Progress func(v int)
+type Progress func(n int, v int)
 
 func (am *AtomicIntMemo) Get(k int) (int, bool) {
 	am.m.RLock()
@@ -73,7 +73,7 @@ func FibChan(n int, memo *AtomicIntMemo, progress Progress) <-chan int{
 			resVal = res1 + res2
 		}
 
-		progress(resVal)
+		progress(n, resVal)
 		memo.Put(n, resVal)
 
 		res <-resVal
